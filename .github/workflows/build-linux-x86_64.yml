@@ -19,7 +19,7 @@ jobs:
           make build-all
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@4
+        uses: actions/upload-artifact@v4
         with:
           name: linux-x86_64-builds
           path: xl-converter/dist/
