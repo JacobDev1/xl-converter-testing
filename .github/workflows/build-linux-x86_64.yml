@@ -1,0 +1,26 @@
+name: build-linux-x86_64
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-linux-x86_64:
+    runs-on: ubuntu-latest
+
+    env:
+      XL_CONVERTER_REF: 'unstable'    # branch or tag
+
+    steps:
+      - name: Build
+        run: |
+          set -euox pipefail
+          git clone --depth 1 -b "${XL_CONVERTER_REF}" https://github.com/JacobDev1/xl-converter.git
+          cd xl-converter
+          make build-all
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@4
+        with:
+          name: linux-x86_64-builds
+          path: xl-converter/dist/
+
