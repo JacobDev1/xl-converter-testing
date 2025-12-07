@@ -8,6 +8,18 @@ on:
         default: 'unstable'
         required: true
         type: string
+      install_macports_packages:
+        description: 'Install MacPorts packages'
+        default: true
+        type: boolean
+      setup_python:
+        description: 'Setup Python'
+        default: true
+        type: boolean
+      setup_rust:
+        description: 'Setup Rust'
+        default: true
+        type: boolean
 
 jobs:
   build-macos-universal2:
@@ -15,6 +27,7 @@ jobs:
 
     steps:
       - name: Install MacPorts
+        if: ${{ inputs.install_macports_packages }}
         run: |
           set -euox pipefail
           curl -L https://github.com/macports/macports-base/releases/download/v2.11.6/MacPorts-2.11.6-15-Sequoia.pkg -o MacPorts.pkg
@@ -24,18 +37,20 @@ jobs:
           sudo /opt/local/bin/port -v selfupdate
 
       - name: Install build tools
+        if: ${{ inputs.install_macports_packages }}
         run: sudo port -N install nasm cmake git wget gtest coreutils ninja gmake gsed llvm-17 clang-17 librsvg
 
-      # Setting this will force a recompile which is why I set this after installing heavy packages.
-      - name: Setup MacPorts for building packages from source
-        run: printf "build_arch    arm64\nmacosx_deployment_target    11.0\n" | sudo tee -a /opt/local/etc/macports/macports.conf > /dev/null
-
       - name: Install packages from source
+        if: ${{ inputs.install_macports_packages }}
         env:
           MACOSX_DEPLOYMENT_TARGET: '11.0'
-        run: sudo port -N -s install pkgconfig +universal giflib5 +universal libjpeg-turbo +universal libpng +universal zlib +universal brotli +universal webp +universal libiconv +universal libomp +universal imath +universal glib2 +universal gettext +universal openjpeg +universal lcms2 +universal fontconfig +universal freetype +universal libjxl +universal liblqr +universal tiff +universal libtool +universal perl5.40 +universal
+        run: |
+          # Setting this will force a recompile which is why I set this after installing heavy packages.
+          printf "build_arch    arm64\nmacosx_deployment_target    11.0\n" | sudo tee -a /opt/local/etc/macports/macports.conf > /dev/null
+          sudo port -N -s install pkgconfig +universal giflib5 +universal libjpeg-turbo +universal libpng +universal zlib +universal brotli +universal webp +universal libiconv +universal libomp +universal imath +universal glib2 +universal gettext +universal openjpeg +universal lcms2 +universal fontconfig +universal freetype +universal libjxl +universal liblqr +universal tiff +universal libtool +universal perl5.40 +universal
 
       - name: Setup Python
+        if: ${{ inputs.setup_python }}
         run: |
           set -euox pipefail
           curl -L "https://www.python.org/ftp/python/3.13.10/python-3.13.10-macos11.pkg" -o python.pkg
@@ -44,6 +59,7 @@ jobs:
           sudo ln -sf $(which pip3) /usr/local/bin/pip
 
       - name: Setup Rust
+        if: ${{ inputs.setup_rust }}
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
