@@ -24,7 +24,7 @@ jobs:
           sudo /opt/local/bin/port -v selfupdate
 
       - name: Install build tools
-        run: sudo port -N install nasm cmake git wget gtest coreutils ninja gmake gsed llvm-17 clang-17
+        run: sudo port -N install nasm cmake git wget gtest coreutils ninja gmake gsed llvm-17 clang-17 librsvg
 
       # Setting this will force a recompile which is why I set this after installing heavy packages.
       - name: Setup MacPorts for building packages from source
@@ -33,7 +33,7 @@ jobs:
       - name: Install packages from source
         env:
           MACOSX_DEPLOYMENT_TARGET: '11.0'
-        run: sudo port -N -s install pkgconfig +universal giflib5 +universal libjpeg-turbo +universal libpng +universal zlib +universal brotli +universal webp +universal libiconv +universal libomp +universal imath +universal glib2 +universal gettext +universal openjpeg +universal lcms2 +universal fontconfig +universal freetype +universal libjxl +universal liblqr +universal tiff +universal libtool +universal librsvg perl5.40 +universal
+        run: sudo port -N -s install pkgconfig +universal giflib5 +universal libjpeg-turbo +universal libpng +universal zlib +universal brotli +universal webp +universal libiconv +universal libomp +universal imath +universal glib2 +universal gettext +universal openjpeg +universal lcms2 +universal fontconfig +universal freetype +universal libjxl +universal liblqr +universal tiff +universal libtool +universal perl5.40 +universal
 
       - name: Setup Python
         run: |
