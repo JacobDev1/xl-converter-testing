@@ -1,0 +1,107 @@
+name: build-macos-universal2
+
+on:
+  workflow_dispatch:
+    inputs:
+      xl_converter_ref:
+        description: 'XL Converter ref (branch or tag)'
+        default: 'unstable'
+        required: true
+        type: string
+
+jobs:
+  build-macos-universal2:
+    runs-on: macos-15
+
+    steps:
+      - name: Install MacPorts
+        run: |
+          set -euox pipefail
+          curl -L https://github.com/macports/macports-base/releases/download/v2.11.6/MacPorts-2.11.6-15-Sequoia.pkg -o MacPorts.pkg
+          sudo installer -pkg MacPorts.pkg -target /
+          echo "/opt/local/bin" >> "$GITHUB_PATH"
+          echo "/opt/local/sbin" >> "$GITHUB_PATH"
+          sudo /opt/local/bin/port -v selfupdate
+
+      - name: Install build tools
+        run: sudo port -N install nasm cmake git wget gtest coreutils ninja gmake gsed llvm-17 clang-17
+
+      # Setting this will force a recompile which is why I set this after installing heavy packages.
+      - name: Setup MacPorts for building packages from source
+        run: printf "build_arch    arm64\nmacosx_deployment_target    11.0\n" | sudo tee -a /opt/local/etc/macports/macports.conf > /dev/null
+
+      - name: Install packages from source
+        env:
+          MACOSX_DEPLOYMENT_TARGET: '11.0'
+        run: sudo port -N -s install pkgconfig +universal giflib5 +universal libjpeg-turbo +universal libpng +universal zlib +universal brotli +universal webp +universal libiconv +universal libomp +universal imath +universal glib2 +universal gettext +universal openjpeg +universal lcms2 +universal fontconfig +universal freetype +universal libjxl +universal liblqr +universal tiff +universal libtool +universal librsvg perl5.40 +universal
+
+      - name: Setup Python
+        run: |
+          set -euox pipefail
+          curl -L "https://www.python.org/ftp/python/3.13.10/python-3.13.10-macos11.pkg" -o python.pkg
+          sudo installer -pkg python.pkg -target /
+          sudo ln -sf $(which python3) /usr/local/bin/python
+          sudo ln -sf $(which pip3) /usr/local/bin/pip
+
+      - name: Setup Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+          source $HOME/.cargo/env
+          rustup target add x86_64-apple-darwin
+
+      - name: Checkout the source code
+        uses: actions/checkout@v6
+        with:
+          repository: JacobDev1/xl-converter
+          ref: ${{ inputs.xl_converter_ref }}
+          path: xl-converter
+
+      - name: Build dependencies
+        run: |
+          set -euox pipefail
+          cd xl-converter
+          make deps
+
+      - name: Setup Python environment
+        run: |
+          cd xl-converter
+          
+          # Build
+          python -m venv env_build
+          source env_build/bin/activate
+          pip install -r requirements.txt
+
+          # Compile the bootloader
+          export CC="/opt/local/bin/clang-mp-17"
+          git clone -b v6.11.1 --depth 1 https://github.com/pyinstaller/pyinstaller.git misc/pyinstaller
+          cd misc/pyinstaller/bootloader
+          python waf all --universal2 --clang
+          cd ..
+          pip install .
+          cd ../..
+
+          # Test
+          python -m venv env_dev
+          source env_dev/bin/activate
+          pip install -r requirements.txt -r requirements_test.txt
+
+      - name: Run tests
+        run: |
+          cd xl-converter
+          source env_dev/bin/activate
+          python test.py
+          python test_convert.py
+      
+      - name: Build
+        run: |
+          cd xl-converter
+          source env_build/bin/activate
+          python build.py -b dmg
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-universal2-build
+          path: xl-converter/dist/*.dmg
+          # There is also .app available but it is omitted when uploading.
