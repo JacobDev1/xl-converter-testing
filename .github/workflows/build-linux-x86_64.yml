@@ -10,7 +10,7 @@ on:
         type: string
       force_clean:
         description: 'Force clean'
-        default: true
+        default: false
         type: boolean
 
 permissions:
