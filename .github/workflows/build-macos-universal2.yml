@@ -8,10 +8,6 @@ on:
         default: 'unstable'
         required: true
         type: string
-      use_caching:
-        description: 'Use caching'
-        default: true
-        type: boolean
 
 jobs:
   build-macos-universal2:
@@ -19,12 +15,11 @@ jobs:
 
     steps:
       - name: Cache MacPorts packages
-        if: ${{ inputs.use_caching }}
         id: cache-macports
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: /opt/local
-          key: macports-macos-universal2-v1
+          key: macports-macos-universal2
 
       - name: Install MacPorts
         if: ${{ steps.cache-macports.outputs.cache-hit != 'true' }}
@@ -47,6 +42,7 @@ jobs:
         run: sudo port -N install nasm cmake git wget gtest coreutils ninja gmake gsed llvm-17 clang-17 librsvg
 
       - name: Install packages from source
+        id: install-packages
         if: ${{ steps.cache-macports.outputs.cache-hit != 'true' }}
         env:
           MACOSX_DEPLOYMENT_TARGET: '11.0'
@@ -55,8 +51,15 @@ jobs:
           printf "build_arch    arm64\nmacosx_deployment_target    11.0\n" | sudo tee -a /opt/local/etc/macports/macports.conf > /dev/null
           sudo port -N -s install pkgconfig +universal giflib5 +universal libjpeg-turbo +universal libpng +universal zlib +universal brotli +universal webp +universal libiconv +universal libomp +universal imath +universal glib2 +universal gettext +universal openjpeg +universal lcms2 +universal fontconfig +universal freetype +universal libjxl +universal liblqr +universal tiff +universal libtool +universal perl5.40 +universal
 
+      - name: Save MacPorts cache
+        id: cache-macports-save
+        uses: actions/cache/save@v4
+        if: ${{ always() && steps.cache-macports.outputs.cache-hit != 'true' && steps.install-packages.outcome == 'success' }}
+        with:
+          path: /opt/local
+          key: macports-macos-universal2
+
       - name: Setup Python
-        if: ${{ inputs.setup_python }}
         run: |
           set -euox pipefail
           curl -L "https://www.python.org/ftp/python/3.13.10/python-3.13.10-macos11.pkg" -o python.pkg
@@ -65,7 +68,6 @@ jobs:
           sudo ln -sf $(which pip3) /usr/local/bin/pip
 
       - name: Setup Rust
-        if: ${{ inputs.setup_rust }}
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
@@ -88,7 +90,7 @@ jobs:
       - name: Setup Python environment
         run: |
           cd xl-converter
-          
+
           # Build
           python -m venv env_build
           source env_build/bin/activate
@@ -114,7 +116,7 @@ jobs:
           source env_dev/bin/activate
           python test.py
           python test_convert.py
-      
+
       - name: Build
         run: |
           cd xl-converter
