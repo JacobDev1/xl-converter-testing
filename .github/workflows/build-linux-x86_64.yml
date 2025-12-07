@@ -8,6 +8,14 @@ on:
         default: 'unstable'
         required: true
         type: string
+      force_clean:
+        description: 'Force clean'
+        default: true
+        type: boolean
+
+permissions:
+  actions: write
+  contents: read
 
 jobs:
   build-linux-x86_64:
@@ -21,11 +29,25 @@ jobs:
           ref: ${{ inputs.xl_converter_ref }}
           path: xl-converter
 
-      - name: Build
-        run: |
-          set -euox pipefail
-          cd xl-converter
-          make build-all
+      - name: Purge cache
+        if: ${{ inputs.force_clean }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh cache delete ${{ runner.os }}-xl-converter-deps || true
+        
+      - name: Cache deps
+        id: cache-deps
+        uses: actions/cache@v4
+        with:
+          path: xl-converter/bin
+          key: ${{ runner.os }}-xl-converter-deps
+
+      - name: Build deps
+        if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
+        run: cd xl-converter && make deps
+
+      - name: Build application
+        run: cd xl-converter && make build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
