@@ -8,16 +8,8 @@ on:
         default: 'unstable'
         required: true
         type: string
-      install_macports_packages:
-        description: 'Install MacPorts packages'
-        default: true
-        type: boolean
-      setup_python:
-        description: 'Setup Python'
-        default: true
-        type: boolean
-      setup_rust:
-        description: 'Setup Rust'
+      use_caching:
+        description: 'Use caching'
         default: true
         type: boolean
 
@@ -26,8 +18,16 @@ jobs:
     runs-on: macos-15
 
     steps:
+      - name: Cache MacPorts packages
+        if: ${{ inputs.use_caching }}
+        id: cache-macports
+        uses: actions/cache@v4
+        with:
+          path: /opt/local
+          key: macports-macos-universal2-v1
+
       - name: Install MacPorts
-        if: ${{ inputs.install_macports_packages }}
+        if: ${{ steps.cache-macports.outputs.cache-hit != 'true' }}
         run: |
           set -euox pipefail
           curl -L https://github.com/macports/macports-base/releases/download/v2.11.6/MacPorts-2.11.6-15-Sequoia.pkg -o MacPorts.pkg
@@ -36,12 +36,18 @@ jobs:
           echo "/opt/local/sbin" >> "$GITHUB_PATH"
           sudo /opt/local/bin/port -v selfupdate
 
+      - name: Restore MacPorts
+        if: ${{ steps.cache-macports.outputs.cache-hit == 'true' }}
+        run: |
+          echo "/opt/local/bin" >> "$GITHUB_PATH"
+          echo "/opt/local/sbin" >> "$GITHUB_PATH"
+
       - name: Install build tools
-        if: ${{ inputs.install_macports_packages }}
+        if: ${{ steps.cache-macports.outputs.cache-hit != 'true' }}
         run: sudo port -N install nasm cmake git wget gtest coreutils ninja gmake gsed llvm-17 clang-17 librsvg
 
       - name: Install packages from source
-        if: ${{ inputs.install_macports_packages }}
+        if: ${{ steps.cache-macports.outputs.cache-hit != 'true' }}
         env:
           MACOSX_DEPLOYMENT_TARGET: '11.0'
         run: |
