@@ -2,19 +2,28 @@ name: build-linux-x86_64
 
 on:
   workflow_dispatch:
+    inputs:
+      xl_converter_ref:
+        description: 'XL Converter ref (branch or tag)'
+        default: 'unstable'
+        required: true
+        type: string
 
 jobs:
   build-linux-x86_64:
     runs-on: ubuntu-latest
 
-    env:
-      XL_CONVERTER_REF: 'unstable'    # branch or tag
-
     steps:
+      - name: Checkout XL Converter
+        uses: actions/checkout@v6
+        with:
+          repository: JacobDev1/xl-converter
+          ref: ${{ inputs.xl_converter_ref }}
+          path: xl-converter
+
       - name: Build
         run: |
           set -euox pipefail
-          git clone --depth 1 -b "${XL_CONVERTER_REF}" https://github.com/JacobDev1/xl-converter.git
           cd xl-converter
           make build-all
 
