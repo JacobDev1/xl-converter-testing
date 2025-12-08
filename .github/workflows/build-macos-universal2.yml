@@ -69,7 +69,7 @@ jobs:
 
       - name: Setup Rust
         run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
           source $HOME/.cargo/env
           rustup target add x86_64-apple-darwin
