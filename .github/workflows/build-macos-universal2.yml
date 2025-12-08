@@ -14,6 +14,11 @@ jobs:
     runs-on: macos-15
 
     steps:
+      - name: Prepare MacPorts cache dir
+        run: |
+          sudo mkdir -p /opt/local
+          sudo chown -R $USER:admin /opt/local
+
       - name: Cache MacPorts packages
         id: cache-macports
         uses: actions/cache/restore@v4
