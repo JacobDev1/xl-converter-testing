@@ -9,6 +9,32 @@ on:
         required: true
         type: string
 
+      # Temp inputs for debugging
+      build_libjxl:
+        description: 'Build libjxl'
+        default: false
+        type: boolean
+      build_libavif:
+        description: 'Build libavif'
+        default: false
+        type: boolean
+      build_libjpeg_turbo:
+        description: 'Build libjpeg-turbo'
+        default: false
+        type: boolean
+      build_oxipng:
+        description: 'Build oxipng'
+        default: false
+        type: boolean
+      build_exiftool:
+        description: 'Build exiftool'
+        default: false
+        type: boolean
+      build_imagemagick:
+        description: 'Build imagemagick'
+        default: false
+        type: boolean
+
 jobs:
   build-macos-universal2:
     runs-on: macos-15
@@ -86,11 +112,29 @@ jobs:
           ref: ${{ inputs.xl_converter_ref }}
           path: xl-converter
 
-      - name: Build dependencies
-        run: |
-          set -euox pipefail
-          cd xl-converter
-          make deps
+      - name: Build libjxl dependency
+        if: ${{ inputs.build_libjxl }}
+        run: cd xl-converter && make libjxl
+
+      - name: Build libjpeg-turbo dependency
+        if: ${{ inputs.build_libjpeg_turbo }}
+        run: cd xl-converter && make libjpeg-turbo
+
+      - name: Build Oxipng dependency
+        if: ${{ inputs.build_oxipng }}
+        run: cd xl-converter && make oxipng
+
+      - name: Build ExifTool dependency
+        if: ${{ inputs.build_exiftool }}
+        run: cd xl-converter && make exiftool
+
+      - name: Build libavif dependency
+        if: ${{ inputs.build_libavif }}
+        run: cd xl-converter && make libavif
+
+      - name: Build ImageMagick dependency
+        if: ${{ inputs.build_imagemagick }}
+        run: cd xl-converter && make imagemagick
 
       - name: Setup Python environment
         run: |
