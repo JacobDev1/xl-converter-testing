@@ -140,7 +140,10 @@ jobs:
 
       - name: Build libavif dependency
         if: ${{ inputs.build_libavif }}
-        run: cd xl-converter && make libavif
+        run: |
+          brew update
+          brew install yasm
+          cd xl-converter && make libavif
 
       - name: Build ImageMagick dependency
         if: ${{ inputs.build_imagemagick }}
