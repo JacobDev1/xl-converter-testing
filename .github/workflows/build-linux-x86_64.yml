@@ -33,18 +33,26 @@ jobs:
         if: ${{ inputs.force_clean }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh cache delete ${{ runner.os }}-xl-converter-deps || true
+        run: gh cache delete linux-xl-converter-deps || true
         
-      - name: Cache deps
+      - name: Restore cached deps
         id: cache-deps
-        uses: actions/cache@v4
+        if: ${{ !inputs.force_clean }}
+        uses: actions/cache/restore@v4
         with:
           path: xl-converter/bin
-          key: ${{ runner.os }}-xl-converter-deps
+          key: linux-xl-converter-deps
 
       - name: Build deps
         if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
         run: cd xl-converter && make deps
+
+      - name: Save deps to cache
+        if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: xl-converter/bin
+          key: linux-xl-converter-deps
 
       - name: Build application
         run: cd xl-converter && make build
