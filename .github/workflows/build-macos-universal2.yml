@@ -8,6 +8,10 @@ on:
         default: 'unstable-macos-ci'
         required: true
         type: string
+      force_clean:
+        description: 'Force clean'
+        default: false
+        type: boolean
 
       # Temp inputs for debugging
       install_python:
@@ -43,11 +47,21 @@ on:
         default: false
         type: boolean
 
+permissions:
+  actions: write
+  contents: read
+
 jobs:
   build-macos-universal2:
     runs-on: macos-15
 
     steps:
+      - name: Purge cache
+        if: ${{ inputs.force_clean }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh cache delete macports-macos-universal2 || true
+
       - name: Prepare MacPorts cache dir
         run: |
           sudo mkdir -p /opt/local
@@ -55,6 +69,7 @@ jobs:
 
       - name: Cache MacPorts packages
         id: cache-macports
+        if: ${{ !inputs.force_clean }}
         uses: actions/cache/restore@v4
         with:
           path: /opt/local
