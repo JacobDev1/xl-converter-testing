@@ -33,7 +33,7 @@ jobs:
         if: ${{ inputs.force_clean }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh cache delete linux-xl-converter-deps || true
+        run: gh cache delete linux-xl-converter-deps --repo ${{ github.repository }} || true
         
       - name: Restore cached deps
         id: cache-deps
