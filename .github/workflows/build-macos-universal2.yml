@@ -78,7 +78,7 @@ jobs:
 
       - name: Install build tools
         if: ${{ steps.cache-macports.outputs.cache-hit != 'true' }}
-        run: sudo port -N install nasm cmake git wget gtest coreutils ninja gmake gsed llvm-17 clang-17 librsvg
+        run: sudo port -N install nasm cmake git wget gtest coreutils ninja gmake gsed llvm-17 clang-17 librsvg yasm
 
       - name: Install packages from source
         id: install-packages
@@ -140,10 +140,7 @@ jobs:
 
       - name: Build libavif dependency
         if: ${{ inputs.build_libavif }}
-        run: |
-          brew update
-          brew install yasm
-          cd xl-converter && make libavif
+        run: cd xl-converter && make libavif
 
       - name: Build ImageMagick dependency
         if: ${{ inputs.build_imagemagick }}
