@@ -153,6 +153,13 @@ jobs:
         if: ${{ inputs.build_exiftool }}
         run: cd xl-converter && make exiftool
 
+      - name: Upload CPAN logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpan-logs
+          path: ~/.cpanm/work/*/build.log
+
       - name: Build libavif dependency
         if: ${{ inputs.build_libavif }}
         run: cd xl-converter && make libavif
