@@ -10,6 +10,14 @@ on:
         type: string
 
       # Temp inputs for debugging
+      install_python:
+        description: 'Install Python'
+        default: false
+        type: boolean
+      install_rust:
+        description: 'Install Rust'
+        default: false
+        type: boolean
       build_libjxl:
         description: 'Build libjxl'
         default: false
@@ -91,6 +99,7 @@ jobs:
           key: macports-macos-universal2
 
       - name: Setup Python
+        if: ${{ inputs.install_python }}
         run: |
           set -euox pipefail
           curl -L "https://www.python.org/ftp/python/3.13.10/python-3.13.10-macos11.pkg" -o python.pkg
@@ -99,6 +108,7 @@ jobs:
           sudo ln -sf $(which pip3) /usr/local/bin/pip
 
       - name: Setup Rust
+        if: ${{ inputs.install_rust }}
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
