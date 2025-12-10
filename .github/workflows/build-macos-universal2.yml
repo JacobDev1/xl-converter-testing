@@ -72,7 +72,9 @@ jobs:
         if: ${{ !inputs.force_clean }}
         uses: actions/cache/restore@v4
         with:
-          path: /opt/local
+          path: |
+            /opt/local
+            !/opt/local/var/macports/home
           key: macports-macos-universal2
 
       - name: Install MacPorts
@@ -103,7 +105,7 @@ jobs:
         run: |
           # Setting this will force a recompile which is why I set this after installing heavy packages.
           printf "build_arch    arm64\nmacosx_deployment_target    11.0\n" | sudo tee -a /opt/local/etc/macports/macports.conf > /dev/null
-          sudo port -N -s install pkgconfig +universal giflib5 +universal libjpeg-turbo +universal libpng +universal zlib +universal brotli +universal webp +universal libiconv +universal libomp +universal imath +universal glib2 +universal gettext +universal openjpeg +universal lcms2 +universal fontconfig +universal freetype +universal libjxl +universal liblqr +universal tiff +universal libtool +universal perl5.40 +universal
+          sudo port -N -s install pkgconfig +universal giflib5 +universal libjpeg-turbo +universal libpng +universal zlib +universal brotli +universal webp +universal libiconv +universal libomp +universal imath +universal glib2 +universal gettext +universal openjpeg +universal lcms2 +universal fontconfig +universal freetype +universal libjxl +universal liblqr +universal tiff +universal libtool +universal
 
       - name: Save MacPorts cache
         id: cache-macports-save
