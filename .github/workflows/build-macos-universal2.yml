@@ -172,6 +172,8 @@ jobs:
           # Build
           export MACOSX_DEPLOYMENT_TARGET=11.0
           export ARCHFLAGS="-arch x86_64 -arch arm64"
+          export CFLAGS="-arch x86_64 -arch arm64"
+          export LDFLAGS="-arch x86_64 -arch arm64"
 
           python -m venv env_build
           source env_build/bin/activate
@@ -179,7 +181,7 @@ jobs:
 
           # Compile the bootloader
           export CC="/opt/local/bin/clang-mp-17"
-          unset ARCHFLAGS
+          unset ARCHFLAGS CFLAGS LDFLAGS
           git clone -b v6.11.1 --depth 1 https://github.com/pyinstaller/pyinstaller.git misc/pyinstaller
           cd misc/pyinstaller/bootloader
           python waf all --universal2 --clang
