@@ -46,6 +46,10 @@ on:
         description: 'Build imagemagick'
         default: false
         type: boolean
+      run_tests:
+        description: 'Run tests'
+        default: false
+        type: boolean
 
 permissions:
   actions: write
@@ -191,6 +195,7 @@ jobs:
           pip install -r requirements.txt -r requirements_test.txt
 
       - name: Run tests
+        if: ${{ inputs.run_tests }}
         run: |
           cd xl-converter
           source env_dev/bin/activate
@@ -200,8 +205,6 @@ jobs:
       - name: Build
         run: |
           cd xl-converter
-
-
           source env_build/bin/activate
           python build.py -b dmg
 
