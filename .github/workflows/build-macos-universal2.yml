@@ -213,5 +213,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: macos-universal2-build
-          path: xl-converter/dist/*.dmg
-          # There is also .app available but it is omitted when uploading.
+          path: xl-converter/dist/*
