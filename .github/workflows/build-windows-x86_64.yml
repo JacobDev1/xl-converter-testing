@@ -1,0 +1,109 @@
+name: build-windows-x86_64
+
+on:
+  workflow_dispatch:
+    inputs:
+      xl_converter_ref:
+        description: 'XL Converter ref (branch or tag)'
+        default: 'unstable-win-ci-patches'
+        required: true
+        type: string
+      force_clean:
+        description: 'Force clean'
+        default: false
+        type: boolean
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  build-windows-x86_64:
+    runs-on: windows-2022
+    
+    steps:
+      - name: Config git
+        run: git config --global core.autocrlf false
+
+      - name: Checkout the source code
+        uses: actions/checkout@v6
+        with:
+          repository: JacobDev1/xl-converter
+          ref: ${{ inputs.xl_converter_ref }}
+          path: xl-converter
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Install bundling tools
+        run: choco install 7zip innosetup --yes
+
+      - name: Purge cache
+        if: ${{ inputs.force_clean }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh cache delete windows-xl-converter-deps --repo ${{ github.repository }} || true
+
+      - name: Build application
+        run: cd xl-converter && python misc/build_scripts/windows/build.py
+
+      - name: Restore cached deps
+        id: cache-deps
+        if: ${{ !inputs.force_clean }}
+        uses: actions/cache/restore@v4
+        with:
+          path: xl-converter/bin
+          key: windows-xl-converter-deps
+
+      - name: Setup MSYS2
+        if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            git
+            cmake
+            wget
+            make
+            nasm
+            base-devel
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-gtest
+            mingw-w64-x86_64-giflib
+            mingw-w64-x86_64-libpng
+            mingw-w64-x86_64-libjpeg-turbo
+            mingw-w64-x86_64-rust
+            mingw-w64-x86_64-7zip
+
+      - name: Build deps
+        if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
+        shell: msys2 {0}
+        run: cd xl-converter && make deps
+
+      - name: Save deps to cache
+        if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: xl-converter/bin
+          key: windows-xl-converter-deps
+
+      - name: Build application
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+          cd xl-converter
+          python misc/build_scripts/windows/build.py ^
+            --python-path "%pythonLocation%\python.exe"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-x86_64-builds
+          path: xl-converter/dist/
