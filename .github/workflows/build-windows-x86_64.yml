@@ -39,7 +39,7 @@ jobs:
           cache: 'pip'
 
       - name: Install bundling tools
-        run: choco install 7zip innosetup --yes
+        run: choco install innosetup --yes
 
       - name: Purge cache
         if: ${{ inputs.force_clean }}
