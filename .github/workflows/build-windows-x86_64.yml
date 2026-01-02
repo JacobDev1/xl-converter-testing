@@ -82,7 +82,6 @@ jobs:
           key: windows-xl-converter-deps
 
       - name: Setup MSYS2
-        if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
