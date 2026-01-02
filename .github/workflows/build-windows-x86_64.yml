@@ -68,6 +68,9 @@ jobs:
             make
             nasm
             base-devel
+            autoconf
+            automake
+            libtool
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-toolchain
             mingw-w64-x86_64-cmake
@@ -78,6 +81,9 @@ jobs:
             mingw-w64-x86_64-libjpeg-turbo
             mingw-w64-x86_64-rust
             mingw-w64-x86_64-7zip
+            mingw-w64-x86_64-imagemagick
+            mingw-w64-x86_64-libjxl
+            mingw-w64-x86_64-aom
 
       - name: Build deps
         if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
