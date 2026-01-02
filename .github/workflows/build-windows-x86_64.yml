@@ -66,11 +66,11 @@ jobs:
             cmake
             wget
             make
-            nasm
             base-devel
             autoconf
             automake
             libtool
+            mingw-w64-x86_64-nasm
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-toolchain
             mingw-w64-x86_64-cmake
