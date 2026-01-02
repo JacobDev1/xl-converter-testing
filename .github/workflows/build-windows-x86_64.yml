@@ -12,6 +12,32 @@ on:
         description: 'Force clean'
         default: false
         type: boolean
+    
+      # Debug
+      build_libjxl:
+        description: 'Build libjxl'
+        default: false
+        type: boolean
+      build_libavif:
+        description: 'Build libavif'
+        default: false
+        type: boolean
+      build_libjpeg_turbo:
+        description: 'Build libjpeg-turbo'
+        default: false
+        type: boolean
+      build_oxipng:
+        description: 'Build oxipng'
+        default: false
+        type: boolean
+      build_exiftool:
+        description: 'Build exiftool'
+        default: false
+        type: boolean
+      build_imagemagick:
+        description: 'Build imagemagick'
+        default: false
+        type: boolean
 
 permissions:
   actions: write
@@ -85,10 +111,40 @@ jobs:
             mingw-w64-x86_64-libjxl
             mingw-w64-x86_64-aom
 
-      - name: Build deps
-        if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
+      # - name: Build deps
+      #   if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
+      #   shell: msys2 {0}
+      #   run: cd xl-converter && make deps
+
+      - name: Build libjxl dependency
+        if: ${{ inputs.build_libjxl }}
         shell: msys2 {0}
-        run: cd xl-converter && make deps
+        run: cd xl-converter && make libjxl
+
+      - name: Build libjpeg-turbo dependency
+        if: ${{ inputs.build_libjpeg_turbo }}
+        shell: msys2 {0}
+        run: cd xl-converter && make libjpeg-turbo
+
+      - name: Build Oxipng dependency
+        if: ${{ inputs.build_oxipng }}
+        shell: msys2 {0}
+        run: cd xl-converter && make oxipng
+
+      - name: Build ExifTool dependency
+        if: ${{ inputs.build_exiftool }}
+        shell: msys2 {0}
+        run: cd xl-converter && make exiftool
+
+      - name: Build libavif dependency
+        if: ${{ inputs.build_libavif }}
+        shell: msys2 {0}
+        run: cd xl-converter && make libavif
+
+      - name: Build ImageMagick dependency
+        if: ${{ inputs.build_imagemagick }}
+        shell: msys2 {0}
+        run: cd xl-converter && make imagemagick
 
       - name: Save deps to cache
         if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
