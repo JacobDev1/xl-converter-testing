@@ -81,6 +81,10 @@ jobs:
             !/opt/local/var/macports/home
           key: macports-macos-universal2
 
+      - name: Set MacPorts permissions
+        if: ${{ steps.cache-macports.outputs.cache-hit == 'true' }}
+        run: sudo chown -R root:admin /opt/local
+
       - name: Install MacPorts
         if: ${{ steps.cache-macports.outputs.cache-hit != 'true' }}
         run: |
