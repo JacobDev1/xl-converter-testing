@@ -119,22 +119,72 @@ jobs:
           ref: ${{ inputs.xl_converter_ref }}
           path: xl-converter
 
+      # Caching is done per dependency due to build complexity.
+
+      - name: Cache libjxl dependency
+        uses: actions/cache@v4
+        id: cache-libjxl
+        with:
+          path: xl-converter/bin/{cjxl,djxl,jxlinfo,cjpegli}
+          key: macos-libjxl-universal2-${{ hashFiles('xl-converter/misc/build_scripts/macos/libjxl.sh') }}
+
       - name: Build libjxl dependency
+        if: ${{ steps.cache-libjxl.outputs.cache-hit != 'true' }}
         run: cd xl-converter && make libjxl
 
+      - name: Cache libjpeg-turbo dependency
+        uses: actions/cache@v4
+        id: cache-libjpeg-turbo
+        with:
+          path: xl-converter/bin/jpegtran
+          key: macos-libjpeg-turbo-${{ hashFiles('xl-converter/misc/build_scripts/macos/libjpeg-turbo.sh') }}
+
       - name: Build libjpeg-turbo dependency
+        if: ${{ steps.cache-libjpeg-turbo.outputs.cache-hit != 'true' }}
         run: cd xl-converter && make libjpeg-turbo
 
+      - name: Cache Oxipng dependency
+        uses: actions/cache@v4
+        id: cache-oxipng
+        with:
+          path: xl-converter/bin/oxipng
+          key: macos-oxipng-${{ hashFiles('xl-converter/misc/build_scripts/macos/oxipng.sh') }}
+
       - name: Build Oxipng dependency
+        if: ${{ steps.cache-oxipng.outputs.cache-hit != 'true' }}
         run: cd xl-converter && make oxipng
 
+      - name: Cache ExifTool dependency
+        uses: actions/cache@v4
+        id: cache-exiftool
+        with:
+          path: xl-converter/bin/exiftool
+          key: macos-exiftool-${{ hashFiles('xl-converter/misc/build_scripts/macos/exiftool.sh') }}
+
       - name: Build ExifTool dependency
+        if: ${{ steps.cache-exiftool.outputs.cache-hit != 'true' }}
         run: cd xl-converter && make exiftool
+      
+      - name: Cache libavif dependency
+        uses: actions/cache@v4
+        id: cache-libavif
+        with:
+          path: xl-converter/bin/{avifenc,avifdec}
+          key: macos-libavif-${{ hashFiles('xl-converter/misc/build_scripts/macos/libavif.sh') }}
 
       - name: Build libavif dependency
+        if: ${{ steps.cache-libavif.outputs.cache-hit != 'true' }}
         run: cd xl-converter && make libavif
 
+      - name: Cache ImageMagick dependency
+        uses: actions/cache@v4
+        id: cache-imagemagick
+        with:
+          path: xl-converter/bin/imagemagick
+          key: macos-imagemagick-${{ hashFiles('xl-converter/misc/build_scripts/macos/imagemagick.sh') }}
+
       - name: Build ImageMagick dependency
+        if: ${{ steps.cache-imagemagick.outputs.cache-hit != 'true' }}
         run: cd xl-converter && make imagemagick
 
       - name: Setup Python environment
