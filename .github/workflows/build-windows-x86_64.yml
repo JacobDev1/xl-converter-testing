@@ -55,6 +55,12 @@ jobs:
           path: xl-converter/bin
           key: windows-xl-converter-deps
 
+      - name: Restore MSYS2 pkg cache
+        uses: actions/cache/restore@v4
+        with:
+          path: C:\msys64\var\cache\pacman\pkg
+          key: windows-msys2-pkg-cache
+
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
         with:
@@ -84,6 +90,18 @@ jobs:
             mingw-w64-x86_64-imagemagick
             mingw-w64-x86_64-libjxl
             mingw-w64-x86_64-aom
+
+      - name: Purge MSYS2 pkg cache
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh cache delete windows-msys2-pkg-cache --repo ${{ github.repository }} || true
+
+      - name: Save MSYS2 pkg cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: C:\msys64\var\cache\pacman\pkg
+          key: windows-msys2-pkg-cache
 
       - name: Build deps
         if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
