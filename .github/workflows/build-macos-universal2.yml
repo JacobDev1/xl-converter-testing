@@ -76,7 +76,9 @@ jobs:
         if: ${{ !inputs.force_clean }}
         uses: actions/cache/restore@v4
         with:
-          path: /opt/local
+          path: |
+            /opt/local
+            !/opt/local/var/macports/home
           key: macports-macos-universal2
 
       - name: Install MacPorts
