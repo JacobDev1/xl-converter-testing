@@ -67,6 +67,7 @@ jobs:
           msystem: MINGW64
           update: true
           cache: false
+          location: C:\msys64
 
       # Installing is done in a separate step to prevent msys2 action from cleaning up the pkg cache.
       - name: Install MSYS2 packages
