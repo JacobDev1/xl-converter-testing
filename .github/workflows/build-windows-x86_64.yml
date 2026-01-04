@@ -39,7 +39,7 @@ jobs:
           cache: 'pip'
 
       - name: Install bundling tools
-        run: choco install innosetup --version 6.2.2 --yes --no-progress
+        run: choco install innosetup --version 6.2.2 --yes --no-progress --allow-downgrade
 
       - name: Purge cache
         if: ${{ inputs.force_clean }}
