@@ -86,6 +86,7 @@ jobs:
           sudo port -N -s install pkgconfig +universal giflib5 +universal libjpeg-turbo +universal libpng +universal zlib +universal brotli +universal webp +universal libiconv +universal libomp +universal imath +universal glib2 +universal gettext +universal openjpeg +universal lcms2 +universal fontconfig +universal freetype +universal libjxl +universal liblqr +universal tiff +universal libtool +universal
 
       - name: Prepare MacPorts for caching
+        if: ${{ steps.cache-macports.outputs.cache-hit != 'true' }}
         run: |
           sudo rm -rf /opt/local/var/macports/home
           sudo chown -R $USER /opt/local
