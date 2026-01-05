@@ -87,6 +87,11 @@ jobs:
           printf "build_arch    arm64\nmacosx_deployment_target    11.0\n" | sudo tee -a /opt/local/etc/macports/macports.conf > /dev/null
           sudo port -N -s install pkgconfig +universal giflib5 +universal libjpeg-turbo +universal libpng +universal zlib +universal brotli +universal webp +universal libiconv +universal libomp +universal imath +universal glib2 +universal gettext +universal openjpeg +universal lcms2 +universal fontconfig +universal freetype +universal libjxl +universal liblqr +universal tiff +universal libtool +universal
 
+      - name: Prepare MacPorts for caching
+        run: |
+          sudo rm -rf /opt/local/var/macports/home
+          sudo chown -R $USER /opt/local
+
       - name: Save MacPorts cache
         id: cache-macports-save
         uses: actions/cache/save@v4
