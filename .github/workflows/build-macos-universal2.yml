@@ -5,7 +5,7 @@ on:
     inputs:
       xl_converter_ref:
         description: 'XL Converter ref (branch or tag)'
-        default: 'unstable-macos-ci'
+        default: 'unstable'
         required: true
         type: string
       force_clean:
