@@ -129,7 +129,11 @@ jobs:
         uses: actions/cache@v4
         id: cache-libjxl
         with:
-          path: xl-converter/bin/{cjxl,djxl,jxlinfo,cjpegli}
+          path: |
+            xl-converter/bin/macos/cjxl
+            xl-converter/bin/macos/djxl
+            xl-converter/bin/macos/jxlinfo
+            xl-converter/bin/macos/cjpegli
           key: macos-libjxl-universal2-${{ hashFiles('xl-converter/misc/build_scripts/macos/libjxl.sh') }}
 
       - name: Build libjxl dependency
@@ -140,7 +144,7 @@ jobs:
         uses: actions/cache@v4
         id: cache-libjpeg-turbo
         with:
-          path: xl-converter/bin/jpegtran
+          path: xl-converter/bin/macos/jpegtran
           key: macos-libjpeg-turbo-${{ hashFiles('xl-converter/misc/build_scripts/macos/libjpeg-turbo.sh') }}
 
       - name: Build libjpeg-turbo dependency
@@ -151,7 +155,7 @@ jobs:
         uses: actions/cache@v4
         id: cache-oxipng
         with:
-          path: xl-converter/bin/oxipng
+          path: xl-converter/bin/macos/oxipng
           key: macos-oxipng-${{ hashFiles('xl-converter/misc/build_scripts/macos/oxipng.sh') }}
 
       - name: Build Oxipng dependency
@@ -162,7 +166,7 @@ jobs:
         uses: actions/cache@v4
         id: cache-exiftool
         with:
-          path: xl-converter/bin/exiftool
+          path: xl-converter/bin/macos/exiftool
           key: macos-exiftool-${{ hashFiles('xl-converter/misc/build_scripts/macos/exiftool.sh') }}
 
       - name: Build ExifTool dependency
@@ -173,7 +177,9 @@ jobs:
         uses: actions/cache@v4
         id: cache-libavif
         with:
-          path: xl-converter/bin/{avifenc,avifdec}
+          path: |
+            xl-converter/bin/macos/avifenc
+            xl-converter/bin/macos/avifdec
           key: macos-libavif-${{ hashFiles('xl-converter/misc/build_scripts/macos/libavif.sh') }}
 
       - name: Build libavif dependency
@@ -184,7 +190,7 @@ jobs:
         uses: actions/cache@v4
         id: cache-imagemagick
         with:
-          path: xl-converter/bin/imagemagick
+          path: xl-converter/bin/macos/imagemagick
           key: macos-imagemagick-${{ hashFiles('xl-converter/misc/build_scripts/macos/imagemagick.sh') }}
 
       - name: Build ImageMagick dependency
