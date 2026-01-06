@@ -9,10 +9,6 @@ on:
         required: true
         type: string
     
-permissions:
-  actions: write
-  contents: read
-
 jobs:
   build-windows-x86_64:
     runs-on: windows-2022
