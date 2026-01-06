@@ -8,14 +8,6 @@ on:
         default: 'unstable'
         required: true
         type: string
-      force_clean:
-        description: 'Force clean'
-        default: false
-        type: boolean
-
-permissions:
-  actions: write
-  contents: read
 
 jobs:
   build-linux-x86_64:
@@ -29,30 +21,16 @@ jobs:
           ref: ${{ inputs.xl_converter_ref }}
           path: xl-converter
 
-      - name: Purge cache
-        if: ${{ inputs.force_clean }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh cache delete linux-xl-converter-deps --repo ${{ github.repository }} || true
-        
-      - name: Restore cached deps
+      - name: Cache deps
         id: cache-deps
-        if: ${{ !inputs.force_clean }}
-        uses: actions/cache/restore@v4
+        uses: actions/cache@v4
         with:
           path: xl-converter/bin
-          key: linux-xl-converter-deps
+          key: linux-xl-converter-deps-${{ hashFiles('xl-converter/misc/build_scripts/linux/*.sh') }}
 
       - name: Build deps
         if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
         run: cd xl-converter && make deps
-
-      - name: Save deps to cache
-        if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
-        uses: actions/cache/save@v4
-        with:
-          path: xl-converter/bin
-          key: linux-xl-converter-deps
 
       - name: Build application
         run: cd xl-converter && make build
