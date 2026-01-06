@@ -8,10 +8,6 @@ on:
         default: 'unstable'
         required: true
         type: string
-      force_clean:
-        description: 'Force clean'
-        default: false
-        type: boolean
     
 permissions:
   actions: write
@@ -41,19 +37,12 @@ jobs:
       - name: Install bundling tools
         run: choco install innosetup --version 6.2.2 --yes --no-progress --allow-downgrade
 
-      - name: Purge cache
-        if: ${{ inputs.force_clean }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh cache delete windows-xl-converter-deps --repo ${{ github.repository }} || true
-
-      - name: Restore cached deps
+      - name: Cache deps
         id: cache-deps
-        if: ${{ !inputs.force_clean }}
-        uses: actions/cache/restore@v4
+        uses: actions/cache@v4
         with:
           path: xl-converter/bin
-          key: windows-xl-converter-deps
+          key: windows-xl-converter-deps-${{ hashFiles('xl-converter/misc/build_scripts/windows/*.sh') }}
 
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
@@ -89,13 +78,6 @@ jobs:
         if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
         shell: msys2 {0}
         run: cd xl-converter && make deps
-
-      - name: Save deps to cache
-        if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
-        uses: actions/cache/save@v4
-        with:
-          path: xl-converter/bin
-          key: windows-xl-converter-deps
 
       - name: Build application
         shell: cmd
