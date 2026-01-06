@@ -26,7 +26,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: xl-converter/bin
-          key: linux-xl-converter-deps-${{ hashFiles('xl-converter/misc/build_scripts/linux/*.sh') }}
+          key: linux-xl-converter-deps-${{ hashFiles('xl-converter/misc/build_scripts/linux/*') }}
 
       - name: Build deps
         if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
