@@ -134,7 +134,7 @@ jobs:
             xl-converter/bin/macos/djxl
             xl-converter/bin/macos/jxlinfo
             xl-converter/bin/macos/cjpegli
-          key: macos-libjxl-universal2-${{ hashFiles('xl-converter/misc/build_scripts/macos/libjxl.sh') }}
+          key: macos-libjxl${{ hashFiles('xl-converter/misc/build_scripts/macos/libjxl.sh') }}
 
       - name: Build libjxl dependency
         if: ${{ steps.cache-libjxl.outputs.cache-hit != 'true' }}
