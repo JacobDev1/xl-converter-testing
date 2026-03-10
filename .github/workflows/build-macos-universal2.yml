@@ -188,7 +188,7 @@ jobs:
         run: |
           cd xl-converter
 
-          # Build
+          # Build env
           export MACOSX_DEPLOYMENT_TARGET=11.0
           export ARCHFLAGS="-arch x86_64 -arch arm64"
           export CFLAGS="-arch x86_64 -arch arm64"
@@ -198,18 +198,9 @@ jobs:
           python -m venv env_build
           source env_build/bin/activate
           pip install -r requirements.txt --no-binary=:psutil:
+          ./misc/build_scripts/macos/pyinstaller.sh
 
-          # Compile the bootloader
-          export CC="/opt/local/bin/clang-mp-17"
-          unset ARCHFLAGS CFLAGS LDFLAGS
-          git clone -b v6.11.1 --depth 1 https://github.com/pyinstaller/pyinstaller.git misc/pyinstaller
-          cd misc/pyinstaller/bootloader
-          python waf all --universal2 --clang
-          cd ..
-          pip install .
-          cd ../..
-
-          # Test
+          # Test env
           python -m venv env_dev
           source env_dev/bin/activate
           pip install -r requirements.txt -r requirements_test.txt
